@@ -1,3 +1,5 @@
+#!/opt/anaconda/anaconda2/bin/python
+
 import visa
 import pyvisa
 import time
