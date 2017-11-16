@@ -1,0 +1,22 @@
+# Para reiniciar el sistema de USB
+sudo udevadm control --reload
+sudo udevadm trigger
+
+# Incluir reglas udev en /etc/udev/rules.d/50-usbtmc.rules
+ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="05e6", ATTRS{idProduct}=="2230", MODE="660", GROUP="plugdev"
+
+
+
+# Modificar usb.py en pyvisa-py/usb.py
+return self._read(lambda: self.interface.read(1),
+                          count,
+                          lambda current: True,
+			  # Esto a true o se cuelga la lectura
+                          supress_end_en,
+                          term_char,
+                          term_char_en,
+                          usb.USBError)
+
+# El listado de recursos solo lo puedo sacar con ROOT por problemas de permisos
+# repasar para ver si fuera posible con el usuario normal.
+
