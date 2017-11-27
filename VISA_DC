@@ -1,6 +1,0 @@
-#!/bin/bash
-
-export PATH=/home/viherbos/anaconda2/bin:$PATH
-export PATH=/home/viherbos/Documentos/TRABAJO/PETALO_work/VISA_TB/:$PATH
-python DC_control.py
-
