@@ -2,39 +2,15 @@ import json
 import visa
 import time
 
-class JSON_config(object):
 
-    def __init__(self, filename, data=None):
-        self.data = data
-        self.filename = filename
-
-    def config_write(self):
-        writeName = self.filename
-        try:
-            with open(writeName,'w') as outfile:
-                json.dump(self.data, outfile)
-        except IOError as e:
-            print(e)
-
-    def config_read(self):
-        readName = self.filename
-        try:
-            with open(readName,'r') as infile:
-                dict_values = json.load(infile)
-                return (dict_values)
-        except IOError as e:
-            print(e)
-            return('None')
-
-
-class DATA(JSON_config):
+class DATA(object):
     # Only filenames are read. The rest is taken from json file
     def __init__(self,read=True):
-        self.config_filename = "visa.json"
+        self.filename = "visa.json"
+        self.visa_cfg=[]
 
-        if (read):
-            super(DATA, self).__init__(filename=self.config_filename)
-            self.visa_cfg = super(DATA,self).config_read()
+        if (read==True):
+            self.config_read()
         else:
             # These are default values.
             self.visa_cfg= {'CH1V':12.0,
@@ -43,6 +19,22 @@ class DATA(JSON_config):
                             'CH2A':1.5,
                             'paral_ind':True
                             }
+        self.config_write()
+
+    def config_write(self):
+        writeName = self.filename
+        try:
+            with open(writeName,'w') as outfile:
+                json.dump(self.visa_cfg, outfile)
+        except IOError as e:
+            print(e)
+
+    def config_read(self):
+        try:
+            with open(self.filename,'r') as infile:
+                self.visa_cfg = json.load(infile)
+        except IOError as e:
+            print(e)
 
 class VISA():
     def __init__(self,upper_class):
