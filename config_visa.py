@@ -78,9 +78,9 @@ class ONOFF_server(Thread):
                     self.item = json.loads(self.data)
                     if (self.item['command']=="DC"):
                         if (self.item['arg1']=="ON"):
-                            self.uc.BUTTONS.switch_on()
+                            self.uc.b_buttons.switch_on()
                         elif (self.item['arg1']=="OFF"):
-                            self.uc.BUTTONS.switch_off()
+                            self.uc.b_buttons.switch_off()
                     else:
                         pass
 
