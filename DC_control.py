@@ -28,7 +28,7 @@ class DATA():
                     'CH1A_r':0,
                     'CH2A_r':0,
                     }
-        self.VI_ADDRESS = 'USB0::1510::8752::9030149::0::INSTR'
+        self.VI_ADDRESS = self.dv.visa_cfg['VI_ADDRESS']
 
 
 class read_VI(Thread):

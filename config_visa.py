@@ -17,7 +17,10 @@ class DATA(object):
                             'CH1A':3.0,
                             'CH2V':5,
                             'CH2A':1.5,
-                            'paral_ind':True
+                            'paral_ind':True,
+                            'VI_ADDRESS': 'USB0::1510::8752::9030149::0::INSTR',
+                            'localhost': '158.42.105.105',
+                            'server_port': 5010
                             }
         self.config_write()
 
@@ -35,6 +38,56 @@ class DATA(object):
                 self.visa_cfg = json.load(infile)
         except IOError as e:
             print(e)
+
+
+class ONOFF_server(Thread):
+
+    def __init__(self,upper_class,stopper):
+        self.uc = upper_class
+        super(SCK_server,self).__init__()
+        self.queue = queue
+        self.stopper = stopper
+        self.s = sk.socket(sk.AF_INET, sk.SOCK_STREAM)
+        try:
+            self.s.bind((self.uc.data['localhost'],
+                        self.uc.data['server_port']))
+            self.s.listen(5)
+        except sk.error as e:
+            print ("Server couldn't be opened: %s" % e)
+            os._exit(1)
+
+
+    def run(self):
+        while not self.stopper.is_set():
+            try:
+                self.s.settimeout(5.0)
+                self.conn, self.addr = self.s.accept()
+            except sk.timeout:
+                pass
+            else:
+                try:
+                    self.s.settimeout(5.0)
+                    # Ten seconds to receive the data
+                    self.data = self.conn.recv(1024)
+                except:
+                    print ("Data not received by server")
+                    pass
+                else:
+                    # Do whatever you need
+                    self.item = json.loads(self.data)
+                    if (self.item['command']=="DC"):
+                        if (self.item['arg1']=="ON"):
+                            pass
+                        elif (self.item['arg1']=="OFF"):
+                            pass
+                    else:
+                        pass
+
+                    self.conn.close()
+        self.s.close()
+        print ("SERVER SOCKET IS DEAD")
+
+
 
 class VISA():
     def __init__(self,upper_class):

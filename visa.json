@@ -1,1 +1,6 @@
-{"CH2V": 5, "CH1A": 3.0, "CH1V": 12.0, "paral_ind": true, "CH2A": 1.5}
+{"CH2V": 5,
+ "CH1A": 3.0,
+ "CH1V": 12.0,
+ "paral_ind": true,
+ "CH2A": 1.5,
+ "VI_ADDRESS": "USB0::1510::8752::9030149::0::INSTR"}
