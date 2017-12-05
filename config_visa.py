@@ -119,10 +119,10 @@ class VISA():
         self.inst.write("OUTPUT OFF")
 
 
-if __name__ == "__main__":
-
-    # Generate Configuration File with Defaults
-    data = DATA(read=False)
-    json_cfg = JSON_config(data.config_filename,
-                           data.visa_cfg)
-    json_cfg.config_write()
+# if __name__ == "__main__":
+#
+#     # Generate Configuration File with Defaults
+#     data = DATA(read=False)
+#     json_cfg = JSON_config(data.config_filename,
+#                            data.visa_cfg)
+#     json_cfg.config_write()
