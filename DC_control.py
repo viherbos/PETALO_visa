@@ -29,6 +29,8 @@ class DATA():
                     'CH2A_r':0,
                     }
         self.VI_ADDRESS = self.dv.visa_cfg['VI_ADDRESS']
+        self.localhost  = self.dv.visa_cfg['localhost']
+        self.server_port = self.dv.visa_cfg['server_port']
 
 
 class read_VI(Thread):
@@ -232,13 +234,17 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MyApp(stopper)
     window.show()
-    thread_read_VI    = read_VI(window,stopper,lock)
-    thread_UPDATE_LCD = UPDATE_LCD(window,stopper,lock)
+    thread_read_VI      = read_VI(window,stopper,lock)
+    thread_UPDATE_LCD   = UPDATE_LCD(window,stopper,lock)
+    thread_ONOFF_server = config_visa.ONOFF_server(window,stopper)
+
     thread_read_VI.start()
     thread_UPDATE_LCD.start()
+    thread_ONOFF_server.start()
 
     res=app.exec_()
     thread_read_VI.join()
     thread_UPDATE_LCD.join()
+    thread_ONOFF_server.join()
 
     sys.exit(res)

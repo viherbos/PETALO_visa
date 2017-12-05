@@ -1,6 +1,8 @@
 import json
 import visa
 import time
+import socket as sk
+from threading import Thread, Event
 
 
 class DATA(object):
@@ -45,12 +47,11 @@ class ONOFF_server(Thread):
     def __init__(self,upper_class,stopper):
         self.uc = upper_class
         super(SCK_server,self).__init__()
-        self.queue = queue
         self.stopper = stopper
         self.s = sk.socket(sk.AF_INET, sk.SOCK_STREAM)
         try:
-            self.s.bind((self.uc.data['localhost'],
-                        self.uc.data['server_port']))
+            self.s.bind((self.uc.sh_DATA.localhost,
+                        self.uc.sh_DATA.server_port))
             self.s.listen(5)
         except sk.error as e:
             print ("Server couldn't be opened: %s" % e)
@@ -77,9 +78,9 @@ class ONOFF_server(Thread):
                     self.item = json.loads(self.data)
                     if (self.item['command']=="DC"):
                         if (self.item['arg1']=="ON"):
-                            pass
+                            self.uc.BUTTONS.switch_on()
                         elif (self.item['arg1']=="OFF"):
-                            pass
+                            self.uc.BUTTONS.switch_off()
                     else:
                         pass
 
