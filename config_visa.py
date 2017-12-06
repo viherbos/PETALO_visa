@@ -1,48 +1,99 @@
 import json
 import visa
 import time
+import socket as sk
+from threading import Thread, Event
+import os
 
-class JSON_config(object):
+BYE_MSG={'command':"BYE",'arg1':"",'arg2':""}
 
-    def __init__(self, filename, data=None):
-        self.data = data
-        self.filename = filename
-
-    def config_write(self):
-        writeName = self.filename
-        try:
-            with open(writeName,'w') as outfile:
-                json.dump(self.data, outfile)
-        except IOError as e:
-            print(e)
-
-    def config_read(self):
-        readName = self.filename
-        try:
-            with open(readName,'r') as infile:
-                dict_values = json.load(infile)
-                return (dict_values)
-        except IOError as e:
-            print(e)
-            return('None')
-
-
-class DATA(JSON_config):
+class DATA(object):
     # Only filenames are read. The rest is taken from json file
     def __init__(self,read=True):
-        self.config_filename = "visa.json"
+        self.filename = "visa.json"
+        self.visa_cfg=[]
 
-        if (read):
-            super(DATA, self).__init__(filename=self.config_filename)
-            self.visa_cfg = super(DATA,self).config_read()
+        if (read==True):
+            self.config_read()
         else:
             # These are default values.
             self.visa_cfg= {'CH1V':12.0,
                             'CH1A':3.0,
                             'CH2V':5,
                             'CH2A':1.5,
-                            'paral_ind':True
+                            'paral_ind':True,
+                            'VI_ADDRESS': 'USB0::1510::8752::9030149::0::INSTR',
+                            'localhost': '158.42.105.105',
+                            'server_port': 5010
                             }
+        self.config_write()
+
+    def config_write(self):
+        writeName = self.filename
+        try:
+            with open(writeName,'w') as outfile:
+                json.dump(self.visa_cfg, outfile, indent=4, sort_keys=False)
+        except IOError as e:
+            print(e)
+
+    def config_read(self):
+        try:
+            with open(self.filename,'r') as infile:
+                self.visa_cfg = json.load(infile)
+        except IOError as e:
+            print(e)
+
+
+class ONOFF_server(Thread):
+
+    def __init__(self,upper_class,stopper):
+        self.uc = upper_class
+        super(ONOFF_server,self).__init__()
+        self.stopper = stopper
+        self.s = sk.socket(sk.AF_INET, sk.SOCK_STREAM)
+        try:
+            self.s.bind((self.uc.sh_DATA.localhost,
+                        self.uc.sh_DATA.server_port))
+            self.s.listen(5)
+        except sk.error as e:
+            print ("Server couldn't be opened: %s" % e)
+            os._exit(1)
+
+
+    def run(self):
+        while not self.stopper.is_set():
+            try:
+                self.s.settimeout(5.0)
+                self.conn, self.addr = self.s.accept()
+            except sk.timeout:
+                pass
+            else:
+                try:
+                    self.s.settimeout(5.0)
+                    # Ten seconds to receive the data
+                    self.data = self.conn.recv(1024)
+                except:
+                    print ("Data not received by server")
+                    pass
+                else:
+                    # Do whatever you need
+                    self.item = json.loads(self.data)
+                    self.conn.send(json.dumps(BYE_MSG))
+                    if (self.item['command']=="DC"):
+                        if (self.item['arg1']=="ON"):
+                            self.uc.b_buttons.switch_on()
+                            print "ON"
+                        elif (self.item['arg1']=="OFF"):
+                            self.uc.b_buttons.switch_off()
+                            print "OFF"
+                    else:
+                        pass
+
+                    self.conn.close()
+        self.s.close()
+        print ("SERVER SOCKET IS DEAD")
+
+
 
 class VISA():
     def __init__(self,upper_class):
@@ -127,10 +178,10 @@ class VISA():
         self.inst.write("OUTPUT OFF")
 
 
-if __name__ == "__main__":
-
-    # Generate Configuration File with Defaults
-    data = DATA(read=False)
-    json_cfg = JSON_config(data.config_filename,
-                           data.visa_cfg)
-    json_cfg.config_write()
+# if __name__ == "__main__":
+#
+#     # Generate Configuration File with Defaults
+#     data = DATA(read=False)
+#     json_cfg = JSON_config(data.config_filename,
+#                            data.visa_cfg)
+#     json_cfg.config_write()
