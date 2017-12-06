@@ -3,7 +3,9 @@ import visa
 import time
 import socket as sk
 from threading import Thread, Event
+import os
 
+BYE_MSG={'command':"BYE",'arg1':"",'arg2':""}
 
 class DATA(object):
     # Only filenames are read. The rest is taken from json file
@@ -30,7 +32,7 @@ class DATA(object):
         writeName = self.filename
         try:
             with open(writeName,'w') as outfile:
-                json.dump(self.visa_cfg, outfile)
+                json.dump(self.visa_cfg, outfile, indent=4, sort_keys=False)
         except IOError as e:
             print(e)
 
@@ -46,7 +48,7 @@ class ONOFF_server(Thread):
 
     def __init__(self,upper_class,stopper):
         self.uc = upper_class
-        super(SCK_server,self).__init__()
+        super(ONOFF_server,self).__init__()
         self.stopper = stopper
         self.s = sk.socket(sk.AF_INET, sk.SOCK_STREAM)
         try:
@@ -76,11 +78,14 @@ class ONOFF_server(Thread):
                 else:
                     # Do whatever you need
                     self.item = json.loads(self.data)
+                    self.conn.send(json.dumps(BYE_MSG))
                     if (self.item['command']=="DC"):
                         if (self.item['arg1']=="ON"):
                             self.uc.b_buttons.switch_on()
+                            print "ON"
                         elif (self.item['arg1']=="OFF"):
                             self.uc.b_buttons.switch_off()
+                            print "OFF"
                     else:
                         pass
 
