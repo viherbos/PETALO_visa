@@ -44,7 +44,7 @@ class DATA(object):
             print(e)
 
 
-class ONOFF_server(Thread):
+class DC_server(Thread):
 
     def __init__(self,upper_class,stopper):
         self.uc = upper_class
@@ -86,6 +86,10 @@ class ONOFF_server(Thread):
                         elif (self.item['arg1']=="OFF"):
                             self.uc.b_buttons.switch_off()
                             print "OFF"
+                        elif (slef.item['arg1']=="V2"):
+                            self.uc.sb_CH2V.setValue(self.item['arg2'])
+                            self.uc.b_buttons.switch_on()
+                            print ("V2 %s" % self.item['arg2'])
                     else:
                         pass
 

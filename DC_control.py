@@ -236,15 +236,15 @@ if __name__ == "__main__":
     window.show()
     thread_read_VI      = read_VI(window,stopper,lock)
     thread_UPDATE_LCD   = UPDATE_LCD(window,stopper,lock)
-    thread_ONOFF_server = config_visa.ONOFF_server(window,stopper)
+    thread_DC_server = config_visa.DC_server(window,stopper)
 
     thread_read_VI.start()
     thread_UPDATE_LCD.start()
-    thread_ONOFF_server.start()
+    thread_DC_server.start()
 
     res=app.exec_()
     thread_read_VI.join()
     thread_UPDATE_LCD.join()
-    thread_ONOFF_server.join()
+    thread_DC_server.join()
 
     sys.exit(res)
