@@ -48,7 +48,7 @@ class DC_server(Thread):
 
     def __init__(self,upper_class,stopper):
         self.uc = upper_class
-        super(ONOFF_server,self).__init__()
+        super(DC_server,self).__init__()
         self.stopper = stopper
         self.s = sk.socket(sk.AF_INET, sk.SOCK_STREAM)
         try:
@@ -86,8 +86,8 @@ class DC_server(Thread):
                         elif (self.item['arg1']=="OFF"):
                             self.uc.b_buttons.switch_off()
                             print "OFF"
-                        elif (slef.item['arg1']=="V2"):
-                            self.uc.sb_CH2V.setValue(self.item['arg2'])
+                        elif (self.item['arg1']=="V2"):
+                            self.uc.sb_CH2V.setValue(float(self.item['arg2']))
                             self.uc.b_buttons.switch_on()
                             print ("V2 %s" % self.item['arg2'])
                     else:
