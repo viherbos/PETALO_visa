@@ -6,5 +6,10 @@
     "CH2A": 1.5,
     "VI_ADDRESS": "USB0::1510::8752::9030149::0::INSTR",
     "paral_ind": true,
+<<<<<<< Updated upstream
     "localhost": "147.156.53.81"
 }
+=======
+    "localhost": "158.42.105.105"
+}
+>>>>>>> Stashed changes

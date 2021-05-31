@@ -1,10 +1,21 @@
+<<<<<<< Updated upstream
 import pyvisa as visa
+=======
+####!/opt/anaconda/anaconda2/bin/python
+
+#import visa
+import pyvisa
+>>>>>>> Stashed changes
 import time
 import config_visa
 import sys
 from PyQt5 import QtCore, QtWidgets, uic
 from threading import Thread, Event, RLock
+<<<<<<< Updated upstream
 #from Queue import Queue, Empty
+=======
+from queue import Queue, Empty
+>>>>>>> Stashed changes
 
 
 qtCreatorFile = "DC_control.ui" # Enter file here.
