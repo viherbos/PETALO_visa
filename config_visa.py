@@ -1,5 +1,5 @@
 import json
-import visa
+import pyvisa as visa
 import time
 import socket as sk
 from threading import Thread, Event
@@ -18,13 +18,13 @@ class DATA(object):
         else:
             # These are default values.
             self.visa_cfg= {'CH1V':12.0,
-                            'CH1A':3.0,
-                            'CH2V':5,
+                            'CH1A':1.5,
+                            'CH2V':1.8,
                             'CH2A':1.5,
                             'paral_ind':True,
                             'VI_ADDRESS': 'USB0::1510::8752::9030149::0::INSTR',
-                            'localhost': '158.42.105.105',
-                            'server_port': 5010
+                            'localhost': '147.156.53.81',
+                            'server_port': 5007
                             }
         self.config_write()
 
@@ -56,7 +56,7 @@ class DC_server(Thread):
                         self.uc.sh_DATA.server_port))
             self.s.listen(5)
         except sk.error as e:
-            print ("Server couldn't be opened: %s" % e)
+            print("Server couldn't be opened: %s" % e)
             os._exit(1)
 
 
@@ -82,20 +82,20 @@ class DC_server(Thread):
                     if (self.item['command']=="DC"):
                         if (self.item['arg1']=="ON"):
                             self.uc.b_buttons.switch_on()
-                            print "ON"
+                            print("ON")
                         elif (self.item['arg1']=="OFF"):
                             self.uc.b_buttons.switch_off()
-                            print "OFF"
+                            print("OFF")
                         elif (self.item['arg1']=="V2"):
                             self.uc.sb_CH2V.setValue(float(self.item['arg2']))
                             self.uc.b_buttons.switch_on()
-                            print ("V2 %s" % self.item['arg2'])
+                            print("V2 %s" % self.item['arg2'])
                     else:
                         pass
 
                     self.conn.close()
         self.s.close()
-        print ("SERVER SOCKET IS DEAD")
+        print("SERVER SOCKET IS DEAD")
 
 
 
@@ -112,7 +112,7 @@ class VISA():
         self.inst.write('*CLS')
         self.inst.write('*ESE 0')
         time.sleep(1)
-        print self.inst.query("*IDN?")
+        print(self.inst.query("*IDN?"))
 
     def float_v(self,number):
         try:
@@ -122,7 +122,7 @@ class VISA():
 
     def wait_VI(self):
         while self.float_v(self.inst.query('*OPC?'))!=1.0:
-            print "FALLO OPC"
+            print("FALLO OPC")
             time.sleep(0.5)
 
     def read_CH1_CH2(self):

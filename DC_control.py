@@ -1,13 +1,10 @@
-#!/opt/anaconda/anaconda2/bin/python
-
-import visa
-import pyvisa
+import pyvisa as visa
 import time
 import config_visa
 import sys
 from PyQt5 import QtCore, QtWidgets, uic
 from threading import Thread, Event, RLock
-from Queue import Queue, Empty
+#from Queue import Queue, Empty
 
 
 qtCreatorFile = "DC_control.ui" # Enter file here.
@@ -224,7 +221,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stopper.set()
         self.b_buttons.switch_off()
         self.VI.inst.write('SYST:LOC')
-        print "Bye bye"
+        print("Bye bye")
 
 
 if __name__ == "__main__":

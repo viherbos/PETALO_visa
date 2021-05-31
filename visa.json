@@ -1,10 +1,10 @@
 {
-    "CH2V": 5, 
-    "CH1V": 12.0, 
-    "server_port": 5007, 
-    "CH1A": 3.0, 
-    "CH2A": 1.5, 
-    "VI_ADDRESS": "USB0::1510::8752::9030149::0::INSTR", 
-    "paral_ind": true, 
-    "localhost": "158.42.105.105"
+    "CH2V": 5,
+    "CH1V": 12.0,
+    "server_port": 5007,
+    "CH1A": 3.0,
+    "CH2A": 1.5,
+    "VI_ADDRESS": "USB0::1510::8752::9030149::0::INSTR",
+    "paral_ind": true,
+    "localhost": "147.156.53.81"
 }
