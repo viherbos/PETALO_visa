@@ -1,21 +1,13 @@
-<<<<<<< Updated upstream
 import pyvisa as visa
-=======
-####!/opt/anaconda/anaconda2/bin/python
-
-#import visa
-import pyvisa
->>>>>>> Stashed changes
 import time
 import config_visa
 import sys
 from PyQt5 import QtCore, QtWidgets, uic
 from threading import Thread, Event, RLock
-<<<<<<< Updated upstream
-#from Queue import Queue, Empty
-=======
+
+
 from queue import Queue, Empty
->>>>>>> Stashed changes
+
 
 
 qtCreatorFile = "DC_control.ui" # Enter file here.
@@ -29,12 +21,16 @@ class DATA():
                     'CH2V':self.dv.visa_cfg['CH2V'],
                     'CH1A':self.dv.visa_cfg['CH1A'],
                     'CH2A':self.dv.visa_cfg['CH2A'],
+                    'CH3V':self.dv.visa_cfg['CH3V'],
+                    'CH3A':self.dv.visa_cfg['CH3A'],
                     'paral_ind':self.dv.visa_cfg['paral_ind']
                   }
         self.dr = { 'CH1V_r':0,
                     'CH2V_r':0,
+                    'CH3V_r':0,
                     'CH1A_r':0,
                     'CH2A_r':0,
+                    'CH3A_r':0
                     }
         self.VI_ADDRESS = self.dv.visa_cfg['VI_ADDRESS']
         self.localhost  = self.dv.visa_cfg['localhost']
@@ -64,6 +60,11 @@ class read_VI(Thread):
                     self.uc.sh_DATA.dr['CH1A_r']=current['1']
                     self.uc.sh_DATA.dr['CH2V_r']=voltage['2']
                     self.uc.sh_DATA.dr['CH2A_r']=current['2']
+
+                voltage,current=self.uc.VI.read_CH3()
+                self.uc.sh_DATA.dr['CH3V_r']=voltage
+                self.uc.sh_DATA.dr['CH3A_r']=current
+
             time.sleep(0.5)
 
 class UPDATE_LCD(Thread):
@@ -84,6 +85,9 @@ class UPDATE_LCD(Thread):
                 self.uc.lcd_CH2V.display(self.uc.sh_DATA.dr['CH2V_r'])
                 self.uc.lcd_CH1A.display(self.uc.sh_DATA.dr['CH1A_r'])
                 self.uc.lcd_CH2A.display(self.uc.sh_DATA.dr['CH2A_r'])
+                self.uc.lcd_CH3V.display(self.uc.sh_DATA.dr['CH3V_r'])
+                self.uc.lcd_CH3A.display(self.uc.sh_DATA.dr['CH3A_r'])
+
                 QtWidgets.qApp.processEvents()
             time.sleep(0.1)
 
@@ -116,6 +120,7 @@ class BUTTONS():
             self.uc.lcd_CH2V.setEnabled(True)
             self.uc.lcd_CH2A.setEnabled(True)
             self.uc.VI.write_CH1_CH2()
+        self.uc.VI.write_CH3()
         time.sleep(0.5)
         self.uc.VI.ON()
 
@@ -126,8 +131,10 @@ class BUTTONS():
         # Update Internal variables
         self.uc.sh_DATA.d['CH1V'] = self.float_v(self.uc.sb_CH1V.value())
         self.uc.sh_DATA.d['CH2V'] = self.float_v(self.uc.sb_CH2V.value())
+        self.uc.sh_DATA.d['CH3V'] = self.float_v(self.uc.sb_CH3V.value())
         self.uc.sh_DATA.d['CH1A'] = self.float_v(self.uc.sb_CH1A.value())
         self.uc.sh_DATA.d['CH2A'] = self.float_v(self.uc.sb_CH2A.value())
+        self.uc.sh_DATA.d['CH3A'] = self.float_v(self.uc.sb_CH3A.value())
         self.uc.sh_DATA.d['paral_ind'] = self.uc.rbut_parall.isChecked()
 
         # Update GUI State
@@ -138,13 +145,16 @@ class BUTTONS():
             if self.uc.sh_DATA.d['CH1A']>1.5:
                 self.uc.sh_DATA.d['CH1A']=1.5
                 self.uc.sb_CH1A.setValue(1.5)
+        self.uc.sb_CH3A.setMaximum(2.0)
 
     def discard(self):
         # Update Internal variables
         self.uc.sb_CH1V.setValue(self.uc.sh_DATA.d['CH1V'])
         self.uc.sb_CH2V.setValue(self.uc.sh_DATA.d['CH2V'])
+        self.uc.sb_CH3V.setValue(self.uc.sh_DATA.d['CH3V'])
         self.uc.sb_CH1A.setValue(self.uc.sh_DATA.d['CH1A'])
         self.uc.sb_CH2A.setValue(self.uc.sh_DATA.d['CH2A'])
+        self.uc.sb_CH3A.setValue(self.uc.sh_DATA.d['CH3A'])
         if self.uc.sh_DATA.d['paral_ind']==True:
             self.uc.rbut_parall.setChecked(True)
             self.uc.rbut_ind.setChecked(False)
@@ -157,6 +167,9 @@ class BUTTONS():
             self.uc.lcd_CH2V.setEnabled(True)
             self.uc.lcd_CH2A.setEnabled(True)
 
+        self.uc.lcd_CH3V.setEnabled(True)
+        self.uc.lcd_CH3A.setEnabled(True)
+
         # Update GUI State
         if self.uc.sh_DATA.d['paral_ind']:
             self.uc.sb_CH1A.setMaximum(3.0)
@@ -165,7 +178,7 @@ class BUTTONS():
             if self.uc.sh_DATA.d['CH1A']>1.5:
                 self.uc.sh_DATA.d['CH1A']=1.5
                 self.uc.sb_CH1A.setValue(1.5)
-
+        self.uc.sb_CH3A.setMaximum(2.0)
 
     def limits_update(self):
         if self.uc.rbut_parall.isChecked():
@@ -175,7 +188,7 @@ class BUTTONS():
             if self.uc.sh_DATA.d['CH1A']>1.5:
                 self.uc.sh_DATA.d['CH1A']=1.5
                 self.uc.sb_CH1A.setValue(1.5)
-
+        self.uc.sb_CH3A.setMaximum(2.0)
 
 class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self,stopper):
@@ -195,8 +208,10 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.sb_CH1V.setValue(self.sh_DATA.d['CH1V'])
         self.sb_CH2V.setValue(self.sh_DATA.d['CH2V'])
+        self.sb_CH3V.setValue(self.sh_DATA.d['CH3V'])
         self.sb_CH1A.setValue(self.sh_DATA.d['CH1A'])
         self.sb_CH2A.setValue(self.sh_DATA.d['CH2A'])
+        self.sb_CH3A.setValue(self.sh_DATA.d['CH3A'])
         if self.sh_DATA.d['paral_ind']==True:
             self.rbut_parall.setChecked(True)
             self.rbut_ind.setChecked(False)
@@ -209,7 +224,8 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lcd_CH2V.setEnabled(True)
             self.lcd_CH2A.setEnabled(True)
             #self.VI.write_CH1_CH2()
-
+        self.lcd_CH3V.setEnabled(True)
+        self.lcd_CH3A.setEnabled(True)
 
 
 

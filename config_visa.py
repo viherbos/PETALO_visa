@@ -19,8 +19,10 @@ class DATA(object):
             # These are default values.
             self.visa_cfg= {'CH1V':12.0,
                             'CH1A':1.5,
-                            'CH2V':1.8,
+                            'CH2V':12.0,
                             'CH2A':1.5,
+                            'CH3V':1.8,
+                            'CH3A':1.5,
                             'paral_ind':True,
                             'VI_ADDRESS': 'USB0::1510::8752::9030149::0::INSTR',
                             'localhost': '147.156.53.81',
@@ -125,6 +127,17 @@ class VISA():
             print("FALLO OPC")
             time.sleep(0.5)
 
+    def read_CH3(self):
+        self.current=0
+        self.voltage=0
+        #self.wait_VI()
+        self.inst.write("INSTrument:SELect CH3")
+        self.current = self.float_v(self.inst.query('MEASure:CURRent?'))
+        self.wait_VI()
+        self.voltage = self.float_v(self.inst.query('MEASure:VOLTage?'))
+        self.wait_VI()
+        return self.voltage,self.current
+
     def read_CH1_CH2(self):
         self.current={}
         self.voltage={}
@@ -152,6 +165,13 @@ class VISA():
         self.wait_VI()
         return self.voltage,self.current
 
+    def write_CH3(self):
+        self.inst.write("INSTrument:SELect CH3")
+        message_v = "VOLTage " + str(self.uc.sh_DATA.d['CH3V'])
+        message_i = "CURRent " + str(self.uc.sh_DATA.d['CH3A'])
+        self.inst.write(message_v)
+        self.inst.write(message_i)
+
     def write_CH1_CH2(self):
         self.inst.write("INSTrument:COMbine:OFF")
         self.inst.write("INSTrument:SELect CH1")
@@ -165,7 +185,6 @@ class VISA():
         message_i = "CURRent " + str(self.uc.sh_DATA.d['CH2A'])
         self.inst.write(message_v)
         self.inst.write(message_i)
-
 
     def write_PARAL(self):
         self.inst.write("INSTrument:COMbine:PARAllel")
